@@ -1,0 +1,80 @@
+org: ${env:ORG}
+service: api-users
+
+provider:
+  name: aws
+  runtime: python3.12
+  memorySize: 1024
+  timeout: 29
+  iam:
+    role: ${env:IAM_ROLE_ARN}
+  environment:
+    USERS_TABLE: ${sls:stage}-api-users
+    TOKENS_TABLE: ${sls:stage}-t_tokens_acceso
+    VALIDAR_TOKEN_LAMBDA_NAME: ${self:service}-${sls:stage}-ValidarTokenAcceso
+    INDEX_EMAIL_NAME: BusquedaPorEmail
+
+functions:
+  registerUser:
+    handler: register_user.lambda_handler
+    events:
+      - http:
+          path: user/register
+          method: post
+          cors:
+            origin: '*'  
+            methods: 
+              - POST
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+
+  loginUser:
+    handler: login_user.lambda_handler
+    events:
+      - http:
+          path: user/login
+          method: post
+          cors:
+            origin: '*'  
+            methods: 
+              - POST
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+    package:
+      include:
+        - loginUser/requirements.txt  
+
+resources:
+  Resources:
+    UsuariosDynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.USERS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: user_id
+            AttributeType: S
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: user_id
+            KeyType: HASH  
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.INDEX_EMAIL_NAME}
+            KeySchema:
+              - AttributeName: email
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
