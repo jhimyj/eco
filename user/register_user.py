@@ -36,7 +36,7 @@ def email_exists(email):
         return response['Count'] > 0
     except Exception as e:
         logger.error(f"Error verificando existencia del email: {e}", exc_info=True)
-        return False
+        raise
 
 
 def lambda_handler(event, context):

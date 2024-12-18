@@ -8,7 +8,6 @@ from utils.password_utils import verify_password
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'mi_clave_secreta')
 dynamodb = boto3.resource('dynamodb')
 USERS_TABLE = os.getenv('USERS_TABLE')
 INDEX_EMAIL_NAME = os.getenv('INDEX_EMAIL_NAME')
@@ -25,6 +24,8 @@ def create_response(status_code, response):
         },
         'body': response
     }
+
+
 
 def lambda_handler(event, context):
     try:

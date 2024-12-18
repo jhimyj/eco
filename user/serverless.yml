@@ -12,6 +12,7 @@ provider:
     USERS_TABLE: ${sls:stage}-api-users
     TOKENS_TABLE: ${sls:stage}-t_tokens_acceso
     VALIDAR_TOKEN_LAMBDA_NAME: ${self:service}-${sls:stage}-ValidarTokenAcceso
+    SECRET_KEY: my_secret
     INDEX_EMAIL_NAME: BusquedaPorEmail
 
 functions:

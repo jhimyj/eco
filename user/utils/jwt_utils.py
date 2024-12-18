@@ -9,7 +9,7 @@ class InvalidTokenError(Exception):
     pass
 
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'mi_clave_secreta')
+SECRET_KEY = os.getenv('SECRET_KEY', 'my_secret1')
 
 def generate_jwt(user_id, email, role):
     expiration_time = datetime.utcnow() + timedelta(hours=6)
@@ -19,6 +19,7 @@ def generate_jwt(user_id, email, role):
         'role': role,
         'exp': expiration_time
     }
+    print("esta mi clave secreta: ", SECRET_KEY)#hay que eliminar esto
     token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
     return token
 
