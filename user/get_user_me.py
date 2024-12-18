@@ -21,7 +21,6 @@ def create_response(status_code, response):
     }
 
 def lambda_handler(event, context):
-    print(event)
     token = event['headers'].get('Authorization', '').replace('Bearer ', '')
 
     if not token:
@@ -29,11 +28,18 @@ def lambda_handler(event, context):
 
     try:
         decoded = decode_jwt(token)
+        print(decoded)
         table = dynamodb.Table(USERS_TABLE)
         response = table.query(
             KeyConditionExpression=boto3.dynamodb.conditions.Key('user_id').eq(decoded["user_id"])
         )
+
+        print(response)
         user = response.get("Item")
+
+        if user is None:
+            return create_response(404, {'message': 'Usuario no encontrado'})
+
         del user["password"]
 
         return create_response(200, user)
