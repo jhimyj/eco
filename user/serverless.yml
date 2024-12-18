@@ -12,7 +12,7 @@ provider:
     USERS_TABLE: ${sls:stage}-api-users
     TOKENS_TABLE: ${sls:stage}-t_tokens_acceso
     VALIDAR_TOKEN_LAMBDA_NAME: ${self:service}-${sls:stage}-ValidarTokenAcceso
-    SECRET_KEY: my_secret
+    SECRET_KEY: my_secret #${env:JWT_SECRET_KEY}#tratar de pasarlo por variable de entorno
     INDEX_EMAIL_NAME: BusquedaPorEmail
 
 functions:
@@ -51,9 +51,23 @@ functions:
               - X-Api-Key
               - X-Amz-Security-Token
               - X-Amz-User-Agent
-    package:
-      include:
-        - loginUser/requirements.txt  
+  getUserMe:
+    handler: get_user_me.lambda_handler
+    events:
+      - http:
+          path: user/me
+          method: get
+          cors:
+            origin: '*'  
+            methods: 
+              - get
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
 
 resources:
   Resources:

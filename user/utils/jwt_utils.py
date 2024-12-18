@@ -19,7 +19,6 @@ def generate_jwt(user_id, email, role):
         'role': role,
         'exp': expiration_time
     }
-    print("esta mi clave secreta: ", SECRET_KEY)#hay que eliminar esto
     token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
     return token
 
