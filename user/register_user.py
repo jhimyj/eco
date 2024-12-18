@@ -47,16 +47,13 @@ def lambda_handler(event, context):
         if isinstance(body, str):
             body = json.loads(body)
 
-        name = body.get("name")
-        last_name = body.get("last_name")
-        phone = body.get("phone")
-        district = body.get("district")
+        data = body.get("data")
         email = body.get("email")
         password = body.get("password")
 
         missing_fields = []
-        for field in ["name", "last_name", "phone", "district", "email", "password"]:
-            if not body.get(field):
+        for field in ["data","name", "last_name", "phone", "district", "email", "password"]:
+            if not body.get(field) and not data.get(field):
                 missing_fields.append(field)
 
         if missing_fields:
@@ -77,12 +74,7 @@ def lambda_handler(event, context):
         item = {
             'user_id': user_id,
             "email": email,
-            "data": {
-                "name": name,
-                "last_name": last_name,
-                "phone": phone,
-                "district": district
-            },
+            "data": data,
             "password": hashed_password,
             "role": "USER",
             "created_at": context.aws_request_id
