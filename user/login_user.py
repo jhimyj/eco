@@ -5,6 +5,7 @@ import os
 import hashlib
 import logging
 from datetime import datetime, timedelta
+from utils.jwt_utils import generate_jwt
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -17,16 +18,6 @@ INDEX_EMAIL_NAME = os.getenv('INDEX_EMAIL_NAME')
 def verify_password(stored_hash, password):
     return stored_hash == hashlib.sha256(password.encode()).hexdigest()
 
-def generate_jwt(user_id, email, role):
-    expiration_time = datetime.utcnow() + timedelta(hours=6)
-    payload = {
-        'user_id': user_id,
-        'email': email,
-        'role': role,
-        'exp': expiration_time
-    }
-    token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
-    return token
 
 def create_response(status_code, response):
     return {
