@@ -28,18 +28,16 @@ def lambda_handler(event, context):
 
     try:
         decoded = decode_jwt(token)
-        print(decoded)
         table = dynamodb.Table(USERS_TABLE)
         response = table.query(
             KeyConditionExpression=boto3.dynamodb.conditions.Key('user_id').eq(decoded["user_id"])
         )
-
-        print(response)
-        user = response.get("Item")
-
-        if user is None:
+        
+        items = response.get("Items")
+        if not items:
             return create_response(404, {'message': 'Usuario no encontrado'})
 
+        user = items[0]
         del user["password"]
 
         return create_response(200, user)
