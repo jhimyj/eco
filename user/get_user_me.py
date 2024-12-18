@@ -21,6 +21,7 @@ def create_response(status_code, response):
     }
 
 def lambda_handler(event, context):
+    print(event)
     token = event['headers'].get('Authorization', '').replace('Bearer ', '')
 
     if not token:
