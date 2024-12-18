@@ -1,11 +1,9 @@
 import boto3
 import json
-import jwt
 import os
-import hashlib
 import logging
-from datetime import datetime, timedelta
 from utils.jwt_utils import generate_jwt
+from utils.password_utils import verify_password
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -15,8 +13,7 @@ dynamodb = boto3.resource('dynamodb')
 USERS_TABLE = os.getenv('USERS_TABLE')
 INDEX_EMAIL_NAME = os.getenv('INDEX_EMAIL_NAME')
 
-def verify_password(stored_hash, password):
-    return stored_hash == hashlib.sha256(password.encode()).hexdigest()
+
 
 
 def create_response(status_code, response):
@@ -51,7 +48,7 @@ def lambda_handler(event, context):
             logger.info(f"Usuario con email {email} no encontrado")
             return create_response(401, json.dumps({'message': 'Credenciales inválidas'}))
 
-        user = response['Items'][0]  # Usar el primer elemento del array
+        user = response['Items'][0]  
         stored_password_hash = user.get('password')
 
         if not verify_password(stored_password_hash, password):

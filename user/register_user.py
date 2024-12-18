@@ -1,9 +1,9 @@
 import boto3
 import logging
 import json
-import hashlib
 import os
 import uuid
+from utils.password_utils import hash_password
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -14,9 +14,7 @@ dynamodb = boto3.resource('dynamodb')
 USERS_TABLE = os.environ['USERS_TABLE']
 INDEX_EMAIL_NAME = os.environ['INDEX_EMAIL_NAME']
 
-##funciones adicionales 
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
+
 
 def create_response(status_code, response):
     return {
