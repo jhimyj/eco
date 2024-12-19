@@ -1,0 +1,130 @@
+org: ${env:ORG}
+service: api-places
+
+provider:
+  name: aws
+  runtime: python3.12
+  memorySize: 1024
+  timeout: 29
+  iam:
+    role: ${env:IAM_ROLE_ARN}
+  environment:
+    PLACES_TABLE: ${sls:stage}-api-places
+    S3_BUCKET: ${sls:stage}-api-places-eco
+    INDEX_PLACE_STATUS: BusquedaPorEstado
+    INDEX_PLACE_LATITUDE_LONGITUDE: BusquedaPorLatitudLongitud
+
+functions:
+  generateUrlSubmit:
+    handler: generate_url_submit.lambda_handler
+    events:
+      - http:
+          path: place/generate/urls
+          method: post
+          cors:
+            origin: '*'  
+            methods: 
+              - POST
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+
+  registerPlace:
+    handler: place_register.lambda_handler
+    events:
+      - http:
+          path: place/register
+          method: post
+          cors:
+            origin: '*'  
+            methods: 
+              - POST
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+  getFilesPlace:
+    handler: place_get_files.lambda_handler
+    events:
+      - http:
+          path: place/get/files
+          method: get
+          cors:
+            origin: '*'  
+            methods: 
+              - GET
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+
+resources:
+  Resources:
+    TiendaGrupoNahiaYCompaniaBucketProyecto:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.S3_BUCKET}
+        AccessControl: Private 
+        VersioningConfiguration:
+          Status: Enabled  
+    PlacesDynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.PLACES_TABLE}
+        AttributeDefinitions:
+          - AttributeName: place_id
+            AttributeType: S
+          - AttributeName: latitude
+            AttributeType: N
+          - AttributeName: longitude
+            AttributeType: N
+          - AttributeName: status
+            AttributeType: N
+        KeySchema:
+          - AttributeName: user_id
+            KeyType: HASH  
+        BillingMode: PAY_PER_REQUEST  
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.INDEX_PLACE_STATUS}
+            KeySchema:
+              - AttributeName: status
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: ${self:provider.environment.INDEX_PLACE_LATITUDE_LONGITUDE}
+            KeySchema:
+              - AttributeName: latitude
+                KeyType: RANGE
+              - AttributeName: longitude
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+
+  Outputs:
+    S3BucketName:
+      Value: ${self:provider.environment.S3_BUCKET}
+      Description: "El nombre del bucket S3"
+
+plugins:
+  - serverless-plugin-s3
+  - serverless-plugin-aws-resource-names
+
+custom:
+  s3:
+    removalPolicy: Retain
+    beforeRemove:
+      - bucketName: ${self:provider.environment.S3_BUCKET}
+        operation: deleteObjects
+        conditions:
+          - Prefix: "place/"
+        skipIfEmpty: true
