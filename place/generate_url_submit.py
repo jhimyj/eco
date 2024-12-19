@@ -54,9 +54,13 @@ def lambda_handler(event, context):
         
 
         body = event.get("body", {})
+
         if not body:
             logger.warning("El cuerpo de la solicitud está vacío")
             return create_response(400, {'message': 'Cuerpo de la solicitud vacío'})
+        
+        if isinstance(body, str):
+            body = json.loads(body)
 
         files = body.get('files', [])
         if not files:
