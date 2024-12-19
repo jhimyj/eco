@@ -2,7 +2,8 @@ import json
 import boto3
 import uuid
 import logging
-import os 
+import os
+from decimal import Decimal  
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -30,8 +31,8 @@ def lambda_handler(event, context):
         place_id = str(uuid.uuid4()) 
         
         try:
-            latitude = float(body.get('latitude'))
-            longitude = float(body.get('longitude'))
+            latitude = Decimal(str(body.get('latitude')))  
+            longitude = Decimal(str(body.get('longitude')))  
         except (ValueError, TypeError):
             logger.warning('Latitud y longitud deben ser valores numéricos válidos')
             return create_response(400, {'message': 'Latitud y longitud deben ser valores numéricos válidos'})
