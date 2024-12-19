@@ -65,7 +65,7 @@ def lambda_handler(event, context):
         logger.info(f'Lugar registrado con place_id: {place_id}, latitud: {latitude}, longitud: {longitude}')
         
         
-        return create_response(201, {'message': 'Lugar registrado correctamente', 'place_id': place_id, 'latitude': latitude, 'longitude': longitude, 'pollution_level': pollution_level, 'plastic_level': plastic_level, 'status': status})
+        return create_response(201, {'message': 'Lugar registrado correctamente', 'place_id': place_id})
     
     except Exception as e:
         logger.error(f'Error interno del servidor: {str(e)}')
