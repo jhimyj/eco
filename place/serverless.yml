@@ -117,20 +117,4 @@ resources:
       Value: ${self:provider.environment.S3_BUCKET}
       Description: "El nombre del bucket S3"
 
-plugins:
-  - serverless-s3-sync
-  - serverless-plugin-aws-resource-names
 
-custom:
-  s3:
-    removalPolicy: Retain
-    beforeRemove:
-      - bucketName: ${self:provider.environment.S3_BUCKET}
-        operation: deleteObjects
-        conditions:
-          - Prefix: "place/"
-        skipIfEmpty: true
-  s3Sync:
-    - bucketName: ${self:provider.environment.S3_BUCKET}
-      localDir: ./path/to/local/files
-      delete: true
