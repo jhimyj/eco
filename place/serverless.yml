@@ -75,7 +75,7 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:provider.environment.S3_BUCKET}
-        AccessControl: Private 
+        AccessControl: Private
         VersioningConfiguration:
           Status: Enabled  
 
@@ -91,26 +91,27 @@ resources:
           - AttributeName: longitude
             AttributeType: N
           - AttributeName: status
-            AttributeType: N
+            AttributeType: S
         KeySchema:
           - AttributeName: place_id
             KeyType: HASH  
-        BillingMode: PAY_PER_REQUEST  
+        BillingMode: PAY_PER_REQUEST
         GlobalSecondaryIndexes:
           - IndexName: ${self:provider.environment.INDEX_PLACE_STATUS}
             KeySchema:
               - AttributeName: status
-                KeyType: HASH
+                KeyType: HASH  
             Projection:
               ProjectionType: ALL
           - IndexName: ${self:provider.environment.INDEX_PLACE_LATITUDE_LONGITUDE}
             KeySchema:
               - AttributeName: latitude
-                KeyType: RANGE
+                KeyType: HASH  
               - AttributeName: longitude
-                KeyType: RANGE
+                KeyType: RANGE  
             Projection:
               ProjectionType: ALL
+
 
   Outputs:
     S3BucketName:
