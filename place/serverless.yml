@@ -50,6 +50,7 @@ functions:
               - X-Api-Key
               - X-Amz-Security-Token
               - X-Amz-User-Agent
+
   getFilesPlace:
     handler: place_get_files.lambda_handler
     events:
@@ -77,6 +78,7 @@ resources:
         AccessControl: Private 
         VersioningConfiguration:
           Status: Enabled  
+
     PlacesDynamoDbTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -116,7 +118,7 @@ resources:
       Description: "El nombre del bucket S3"
 
 plugins:
-  - serverless-plugin-s3
+  - serverless-s3-sync
   - serverless-plugin-aws-resource-names
 
 custom:
@@ -128,3 +130,7 @@ custom:
         conditions:
           - Prefix: "place/"
         skipIfEmpty: true
+  s3Sync:
+    - bucketName: ${self:provider.environment.S3_BUCKET}
+      localDir: ./path/to/local/files
+      delete: true
