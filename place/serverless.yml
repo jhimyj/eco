@@ -93,7 +93,7 @@ resources:
           - AttributeName: status
             AttributeType: N
         KeySchema:
-          - AttributeName: user_id
+          - AttributeName: place_id
             KeyType: HASH  
         BillingMode: PAY_PER_REQUEST  
         GlobalSecondaryIndexes:
