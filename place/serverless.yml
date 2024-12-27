@@ -10,9 +10,14 @@ provider:
     role: ${env:IAM_ROLE_ARN}
   environment:
     PLACES_TABLE: ${sls:stage}-api-places
+    CONNECTIONS_TABLE: ${sls:stage}-connections
     S3_BUCKET: ${sls:stage}-api-places-eco
     INDEX_PLACE_STATUS: BusquedaPorEstado
     INDEX_PLACE_LATITUDE_LONGITUDE: BusquedaPorLatitudLongitud
+    WEBSOCKET_API_ID:
+      Ref: WebsocketsApi
+    AWS_REGION: ${self:provider.region}
+    STAGE: ${sls:stage}
 
 functions:
   generateUrlSubmit:
@@ -105,6 +110,24 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
 
+  websocketConnect:
+    handler: websocket.connect_handler
+    events:
+      - websocket:
+          route: $connect
+
+  websocketDisconnect:
+    handler: websocket.disconnect_handler
+    events:
+      - websocket:
+          route: $disconnect
+
+  websocketAction:
+    handler: websocket.action_handler
+    events:
+      - websocket:
+          route: action
+
 resources:
   Resources:
     TiendaGrupoNahiaYCompaniaBucketProyecto:
@@ -148,10 +171,24 @@ resources:
             Projection:
               ProjectionType: ALL
 
+    ConnectionsDynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.CONNECTIONS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: connectionId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: connectionId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
 
   Outputs:
     S3BucketName:
       Value: ${self:provider.environment.S3_BUCKET}
       Description: "El nombre del bucket S3"
-
-
+    WebSocketApiId:
+      Value:
+        Ref: WebsocketsApi
+      Export:
+        Name: ${self:service}-${sls:stage}-WebSocketApiId

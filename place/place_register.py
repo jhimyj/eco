@@ -4,6 +4,8 @@ import uuid
 import logging
 import os
 from decimal import Decimal  
+from websocket_utils import notify_clients
+
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -51,7 +53,8 @@ def lambda_handler(event, context):
             logger.warning(f'Campos requeridos faltantes: {", ".join(missing_fields)}')
             return create_response(400, {'message': f'Campos requeridos faltantes: {", ".join(missing_fields)}'})
 
-        
+
+
         table.put_item(
             Item={
                 'place_id': place_id,
@@ -62,9 +65,16 @@ def lambda_handler(event, context):
                 'status': status
             }
         )
+        body['place_id'] = place_id
         logger.info(f'Lugar registrado con place_id: {place_id}, latitud: {latitude}, longitud: {longitude}')
-        
-        
+        notify_clients(json.dumps({'action':"added",'place':{
+        'place_id': place_id,
+        'latitude': float(latitude),
+        'longitude': float(longitude),
+        'pollution_level': pollution_level,
+        'plastic_level': plastic_level,
+        'status': status
+        }}))
         return create_response(201, {'message': 'Lugar registrado correctamente', 'place_id': place_id})
     
     except Exception as e:
