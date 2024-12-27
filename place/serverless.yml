@@ -69,6 +69,42 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
 
+  getPlace:
+    handler: place_get.lambda_handler
+    events:
+      - http:
+          path: place/{place_id}
+          method: get
+          cors:
+            origin: '*'  
+            methods: 
+              - GET
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+  
+  getPlaceAll:
+    handler: place_get_all.lambda_handler
+    events:
+      - http:
+          path: place/all
+          method: get
+          cors:
+            origin: '*'  
+            methods: 
+              - GET
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+
 resources:
   Resources:
     TiendaGrupoNahiaYCompaniaBucketProyecto:
