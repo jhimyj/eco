@@ -10,7 +10,7 @@ connections_table = os.environ['CONNECTIONS_TABLE']
 
 apigw_management_client = boto3.client(
     'apigatewaymanagementapi',
-    endpoint_url=f"https://{os.environ['WEBSOCKET_API_ID']}.execute-api.{os.environ['AWS_REGION']}.amazonaws.com/{os.environ['STAGE']}"
+    endpoint_url=f"https://{os.environ['WEBSOCKET_API_ID']}.execute-api.{os.environ['REGION']}.amazonaws.com/{os.environ['STAGE']}"
 )
 
 def notify_clients(message):

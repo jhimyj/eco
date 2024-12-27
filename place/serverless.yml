@@ -17,7 +17,7 @@ provider:
     INDEX_PLACE_LATITUDE_LONGITUDE: BusquedaPorLatitudLongitud
     WEBSOCKET_API_ID:
       Ref: WebsocketsApi
-    AWS_REGION: ${self:provider.region}
+    REGION: ${self:provider.region}
     STAGE: ${sls:stage}
 
 functions:
