@@ -4,7 +4,7 @@ import uuid
 import logging
 import os
 from decimal import Decimal  
-from websocket_utils import notify_clients
+from websocket_utils.notify_clients import notify_clients
 
 
 logger = logging.getLogger()
