@@ -2,12 +2,19 @@ import boto3
 import json
 import os
 import logging
+from decimal import Decimal
 
 dynamodb = boto3.resource('dynamodb')
 PLACES_TABLE = os.environ['PLACES_TABLE']
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return int(obj) if obj % 1 == 0 else float(obj)
+        return super(DecimalEncoder, self).default(obj)
 
 def create_response(status_code, response):
     return {
@@ -16,7 +23,7 @@ def create_response(status_code, response):
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Credentials': True,
         },
-        'body': json.dumps(response)
+        'body': json.dumps(response, cls=DecimalEncoder)
     }
 
 def get_all_places():
