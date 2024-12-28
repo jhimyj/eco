@@ -47,7 +47,7 @@ def lambda_handler(event, context):
             logger.info(f"Ítem encontrado y eliminado: {attributes}")
             
             logger.info(f"Notificando a los clientes sobre el lugar eliminado con ID: {place_id}")
-            notify_clients(json.dumps({'action': 'deleted', 'place': attributes}))
+            notify_clients(json.dumps({'action': 'deleted', 'place': json.loads(attributes)}))
 
             return create_response(204, {})
 
