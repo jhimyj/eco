@@ -4,6 +4,7 @@ import logging
 import os
 from decimal import Decimal
 from websocket_utils.notify_clients import notify_clients
+from botocore.exceptions import ClientError
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -36,25 +37,20 @@ def lambda_handler(event, context):
         body = json.loads(event.get("body", "{}"))
         place_id = event.get('pathParameters', {}).get('place_id')
 
-
         if not place_id:
             logger.error("El parámetro 'place_id' no fue proporcionado en la solicitud.")
             return create_response(400, {'message': 'El parámetro place_id es obligatorio.'})
 
-     
         if not body:
             logger.error("'body' está vacío o mal formado.")
             return create_response(400, {'message': 'El cuerpo de la solicitud está vacío o mal formado.'})
 
- 
         updated_fields_found = False
         for field in updatable_fields:
             if field in body:
-           
                 value = body[field]
                 if isinstance(value, (int, float)):
-                    value = Decimal(str(value))  
-
+                    value = Decimal(str(value))
                 if updated_fields_found:
                     update_expression += ', '
                 update_expression += f"{field} = :{field}"
@@ -67,19 +63,16 @@ def lambda_handler(event, context):
 
         logger.info(f"Intentando actualizar el lugar con ID: {place_id}")
 
-        
         condition_expression = "attribute_exists(place_id)"
 
-       
         response = table.update_item(
             Key={'place_id': place_id},
             UpdateExpression=update_expression,
             ExpressionAttributeValues=expression_attribute_values,
             ConditionExpression=condition_expression,
-            ReturnValues="ALL_NEW"  
+            ReturnValues="ALL_NEW"
         )
 
-       
         if 'Attributes' in response:
             updated_item = json.dumps(response['Attributes'], cls=DecimalEncoder)
             logger.info(f"Lugar actualizado: {updated_item}")
@@ -88,13 +81,14 @@ def lambda_handler(event, context):
 
         return create_response(200, {'message': 'Lugar actualizado correctamente.', 'data': response['Attributes']})
 
-    except boto3.exceptions.Boto3Error as e:
-        logger.error(f"Error al interactuar con DynamoDB: {str(e)}")
-        return create_response(500, {'message': 'Error interno en DynamoDB.'})
-
-    except table.exceptions.ConditionalCheckFailedException as e:
-        logger.error(f"No se encontró el lugar con ID: {place_id}")
-        return create_response(404, {'message': f'place_id {place_id} no encontrado.'})
+    except ClientError as e:
+        error_code = e.response['Error']['Code']
+        if error_code == 'ConditionalCheckFailedException':
+            logger.error(f"No se encontró el lugar con ID: {place_id}")
+            return create_response(404, {'message': f'place_id {place_id} no encontrado.'})
+        else:
+            logger.error(f"Error al interactuar con DynamoDB: {str(e)}")
+            return create_response(500, {'message': 'Error interno en DynamoDB.'})
 
     except Exception as e:
         logger.error(f"Error inesperado: {str(e)}")
