@@ -112,7 +112,7 @@ functions:
               - X-Amz-User-Agent
   
   deletePlace:
-    handler: place_get_all.lambda_handler
+    handler: place_delete.lambda_handler
     events:
       - http:
           path: place/{place_id}
