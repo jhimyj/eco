@@ -129,6 +129,24 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
 
+  updatePlace:
+    handler: place_update.lambda_handler
+    events:
+      - http:
+          path: place/{place_id}
+          method: patch
+          cors:
+            origin: '*'  
+            methods: 
+              - PATCH
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+
   websocketConnect:
     handler: websocket.connect_handler
     events:

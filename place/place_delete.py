@@ -36,7 +36,7 @@ def lambda_handler(event, context):
         
         if not place_id:
             logger.warning("El parámetro 'place_id' no fue proporcionado en la solicitud.")
-            return create_response(400, {'error': 'El parámetro place_id es obligatorio.'})
+            return create_response(400, {'message': 'El parámetro place_id es obligatorio.'})
         
         logger.info(f"Intentando eliminar el lugar con ID: {place_id}")
         response = table.delete_item(Key={'place_id': place_id}, ReturnValues='ALL_OLD')
@@ -52,12 +52,12 @@ def lambda_handler(event, context):
             return create_response(204, {})
 
         logger.warning(f"No se encontró un lugar con ID: {place_id}")
-        return create_response(404, {'error': 'place_id no encontrado.'})
+        return create_response(404, {'message': 'place_id no encontrado.'})
 
     except boto3.exceptions.Boto3Error as e:
         logger.error(f"Error al interactuar con DynamoDB: {str(e)}")
-        return create_response(500, {'error': 'Error interno del servidor en DynamoDB.'})
+        return create_response(500, {'message': 'Error interno del servidor en DynamoDB.'})
     
     except Exception as e:
         logger.error(f"Error inesperado: {str(e)}")
-        return create_response(500, {'error': 'Error inesperado del servidor.'})
+        return create_response(500, {'message': 'Error inesperado del servidor.'})
