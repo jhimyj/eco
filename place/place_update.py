@@ -34,6 +34,7 @@ def lambda_handler(event, context):
         updatable_fields = ["plastic_level", "pollution_level", "latitude", "longitude", "status"]
         update_expression = 'set '
         expression_attribute_values = {}
+        expression_attribute_names = {}
         body = json.loads(event.get("body", "{}"))
         place_id = event.get('pathParameters', {}).get('place_id')
 
@@ -51,9 +52,16 @@ def lambda_handler(event, context):
                 value = body[field]
                 if isinstance(value, (int, float)):
                     value = Decimal(str(value))
+                
                 if updated_fields_found:
                     update_expression += ', '
-                update_expression += f"{field} = :{field}"
+                
+                if field == "status":  # Si es un campo reservado, usamos un alias
+                    expression_attribute_names['#status'] = 'status'
+                    update_expression += f"#status = :{field}"
+                else:
+                    update_expression += f"{field} = :{field}"
+
                 expression_attribute_values[f":{field}"] = value
                 updated_fields_found = True
 
@@ -69,6 +77,7 @@ def lambda_handler(event, context):
             Key={'place_id': place_id},
             UpdateExpression=update_expression,
             ExpressionAttributeValues=expression_attribute_values,
+            ExpressionAttributeNames=expression_attribute_names,
             ConditionExpression=condition_expression,
             ReturnValues="ALL_NEW"
         )
