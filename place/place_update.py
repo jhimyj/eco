@@ -26,7 +26,7 @@ def create_response(status_code, response):
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Credentials': True,
         },
-        'body': json.dumps(response)
+        'body': json.dumps(response,cls=DecimalEncoder)
     }
 
 def lambda_handler(event, context):
