@@ -77,7 +77,7 @@ def lambda_handler(event, context):
             Key={'place_id': place_id},
             UpdateExpression=update_expression,
             ExpressionAttributeValues=expression_attribute_values,
-            ExpressionAttributeNames=expression_attribute_names,
+            ExpressionAttributeNames=expression_attribute_names if 'status' in body else {},
             ConditionExpression=condition_expression,
             ReturnValues="ALL_NEW"
         )
