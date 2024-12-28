@@ -73,14 +73,22 @@ def lambda_handler(event, context):
 
         condition_expression = "attribute_exists(place_id)"
         
-        response = table.update_item(
+        if expression_attribute_names:
+            response = table.update_item(
             Key={'place_id': place_id},
             UpdateExpression=update_expression,
             ExpressionAttributeValues=expression_attribute_values,
-            ExpressionAttributeNames=expression_attribute_names if expression_attribute_names else None,
+            ExpressionAttributeNames=expression_attribute_names,
             ConditionExpression=condition_expression,
             ReturnValues="ALL_NEW"
         )
+        else: 
+            response = table.update_item(
+            Key={'place_id': place_id},
+            UpdateExpression=update_expression,
+            ExpressionAttributeValues=expression_attribute_values,
+            ConditionExpression=condition_expression,
+            ReturnValues="ALL_NEW")
 
         if 'Attributes' in response:
             updated_item = json.dumps(response['Attributes'], cls=DecimalEncoder)
