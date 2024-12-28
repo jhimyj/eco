@@ -8,7 +8,7 @@ provider:
   memorySize: 1024
   timeout: 29
   iam:
-    role: ${env:IAM_ROLE_ARN}
+    role: ${env:IAM_ROLE_ARN} 
   environment:
     PLACES_TABLE: ${sls:stage}-api-places
     CONNECTIONS_TABLE: ${sls:stage}-connections
@@ -103,6 +103,24 @@ functions:
             origin: '*'  
             methods: 
               - GET
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+  
+  deletePlace:
+    handler: place_get_all.lambda_handler
+    events:
+      - http:
+          path: place/{place_id}
+          method: delete
+          cors:
+            origin: '*'  
+            methods: 
+              - DELETE
             headers:
               - Content-Type
               - Authorization
