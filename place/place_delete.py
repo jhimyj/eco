@@ -41,6 +41,8 @@ def lambda_handler(event, context):
         logger.info(f"Intentando eliminar el lugar con ID: {place_id}")
         response = table.delete_item(Key={'place_id': place_id}, ReturnValues='ALL_OLD')
 
+        print(json.dumps(response, cls=DecimalEncoder))
+
         if 'Item' in response:
             item = json.dumps(response['Item'], cls=DecimalEncoder)
             logger.info(f"Ítem encontrado y eliminado: {item}")
