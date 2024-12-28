@@ -72,12 +72,12 @@ def lambda_handler(event, context):
         logger.info(f"Intentando actualizar el lugar con ID: {place_id}")
 
         condition_expression = "attribute_exists(place_id)"
-
+        
         response = table.update_item(
             Key={'place_id': place_id},
             UpdateExpression=update_expression,
             ExpressionAttributeValues=expression_attribute_values,
-            ExpressionAttributeNames=expression_attribute_names if 'status' in body else {},
+            ExpressionAttributeNames=expression_attribute_names if expression_attribute_names else None,
             ConditionExpression=condition_expression,
             ReturnValues="ALL_NEW"
         )
