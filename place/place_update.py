@@ -26,7 +26,7 @@ def create_response(status_code, response):
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Credentials': True,
         },
-        'body': json.dumps(response,cls=DecimalEncoder)
+        'body': json.dumps(response, cls=DecimalEncoder)
     }
 
 def lambda_handler(event, context):
@@ -56,7 +56,7 @@ def lambda_handler(event, context):
                 if updated_fields_found:
                     update_expression += ', '
                 
-                if field == "status":  # Si es un campo reservado, usamos un alias
+                if field == "status":
                     expression_attribute_names['#status'] = 'status'
                     update_expression += f"#status = :{field}"
                 else:
@@ -85,7 +85,6 @@ def lambda_handler(event, context):
         if 'Attributes' in response:
             updated_item = json.dumps(response['Attributes'], cls=DecimalEncoder)
             logger.info(f"Lugar actualizado: {updated_item}")
-            
             notify_clients(json.dumps({'action': 'updated', 'place': json.loads(updated_item)}))
 
         return create_response(200, {'message': 'Lugar actualizado correctamente.', 'data': response['Attributes']})
