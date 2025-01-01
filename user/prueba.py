@@ -1,6 +1,10 @@
 import json
 
 def lambda_handler(event, context):
+
+    # Imprimir el evento para ver la estructura
+    print("Evento recibido:", json.dumps(event))
+
     # Extrae la información del usuario autenticado
     user_info = event.get("requestContext", {}).get("authorizer", {}).get("claims", {})
     
