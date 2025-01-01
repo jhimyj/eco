@@ -88,9 +88,9 @@ functions:
               - X-Api-Key
               - X-Amz-Security-Token
               - X-Amz-User-Agent
-            authorizer:
-              name: authorizer
-              arn: ${self:provider.environment.COGNITO_USER_POOL_ARN}
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
 
 resources:
   Resources:
@@ -115,3 +115,12 @@ resources:
             Projection:
               ProjectionType: ALL
 
+    ApiGatewayAuthorizer:
+      Type: AWS::ApiGateway::Authorizer
+      Properties:
+        Name: CognitoAuthorizer
+        Type: COGNITO_USER_POOLS
+        IdentitySource: "method.request.header.Authorization"
+        RestApiId: !Ref ApiGatewayRestApi
+        ProviderARNs:
+          - ${self:provider.environment.COGNITO_USER_POOL_ARN}
