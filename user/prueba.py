@@ -1,6 +1,10 @@
 import json
+import os
 
 def lambda_handler(event, context):
+    # Imprimir el ARN del pool Cognito desde las variables de entorno
+    cognito_pool_arn = os.environ.get("COGNITO_USER_POOL_ARN")
+    print("Cognito User Pool ARN:", cognito_pool_arn)
 
     # Imprimir el evento para ver la estructura
     print("Evento recibido:", json.dumps(event))

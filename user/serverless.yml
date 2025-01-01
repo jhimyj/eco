@@ -7,14 +7,14 @@ provider:
   memorySize: 1024
   timeout: 29
   iam:
-    role: ${env:IAM_ROLE_ARN}
+    role: ${env:IAM_ROLE_ARN}  # Asegúrate de que IAM_ROLE_ARN esté correctamente configurado en tu entorno
   environment:
     USERS_TABLE: ${sls:stage}-api-users
     TOKENS_TABLE: ${sls:stage}-t_tokens_acceso
     VALIDAR_TOKEN_LAMBDA_NAME: ${self:service}-${sls:stage}-ValidarTokenAcceso
-    SECRET_KEY: my_secret #${env:JWT_SECRET_KEY}#tratar de pasarlo por variable de entorno
+    SECRET_KEY: my_secret  # Puedes reemplazar esto con una variable de entorno si lo deseas
     INDEX_EMAIL_NAME: BusquedaPorEmail
-    COGNITO_USER_POOL_ARN: ${env:COGNITO_USER_POOL_ARN} # Reemplaza con tu User Pool ARN
+    COGNITO_USER_POOL_ARN: ${env:COGNITO_USER_POOL_ARN}  # Reemplaza con tu ARN de Cognito User Pool
 
 functions:
   registerUser:
@@ -52,6 +52,7 @@ functions:
               - X-Api-Key
               - X-Amz-Security-Token
               - X-Amz-User-Agent
+
   getUserMe:
     handler: get_user_me.lambda_handler
     events:
@@ -61,7 +62,7 @@ functions:
           cors:
             origin: '*'  
             methods: 
-              - get
+              - GET
             headers:
               - Content-Type
               - Authorization
@@ -89,8 +90,9 @@ functions:
               - X-Amz-User-Agent
             authorizer:
               type: COGNITO_USER_POOLS
-              authorizerId:
-                Ref: ApiGatewayAuthorizer
+              providerARNs:
+                - ${self:provider.environment.COGNITO_USER_POOL_ARN}  # Aquí se asegura que se use el ARN correcto
+              identitySource: method.request.header.Authorization
 
 resources:
   Resources:
@@ -114,14 +116,3 @@ resources:
                 KeyType: HASH
             Projection:
               ProjectionType: ALL
-
-    ApiGatewayAuthorizer:
-      Type: AWS::ApiGateway::Authorizer
-      Properties: 
-        Name: CognitoAuthorizer
-        Type: COGNITO_USER_POOLS
-        RestApiId: 
-          Ref: ApiGatewayRestApi
-        IdentitySource: method.request.header.Authorization
-        ProviderARNs: 
-          - ${self:provider.environment.COGNITO_USER_POOL_ARN}
