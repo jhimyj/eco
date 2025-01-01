@@ -89,10 +89,8 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
             authorizer:
-              type: COGNITO_USER_POOLS
-              providerARNs:
-                - ${self:provider.environment.COGNITO_USER_POOL_ARN}  # Aquí se asegura que se use el ARN correcto
-              identitySource: method.request.header.Authorization
+              name: authorizer
+              arn: ${self:provider.environment.COGNITO_USER_POOL_ARN}
 
 resources:
   Resources:
@@ -116,3 +114,4 @@ resources:
                 KeyType: HASH
             Projection:
               ProjectionType: ALL
+
