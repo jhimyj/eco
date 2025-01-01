@@ -14,7 +14,7 @@ provider:
     VALIDAR_TOKEN_LAMBDA_NAME: ${self:service}-${sls:stage}-ValidarTokenAcceso
     SECRET_KEY: my_secret #${env:JWT_SECRET_KEY}#tratar de pasarlo por variable de entorno
     INDEX_EMAIL_NAME: BusquedaPorEmail
-    COGNITO_USER_POOL_ID: ${env:COGNITO_USER_POOL_ID} # Reemplaza con tu User Pool ID
+    COGNITO_USER_POOL_ARN: ${env:COGNITO_USER_POOL_ARN} # Reemplaza con tu User Pool ARN
 
 functions:
   registerUser:
@@ -124,4 +124,4 @@ resources:
           Ref: ApiGatewayRestApi
         IdentitySource: method.request.header.Authorization
         ProviderARNs: 
-          - arn:aws:cognito-idp:${self:provider.region}:${self:provider.accountId}:userpool/${self:provider.environment.COGNITO_USER_POOL_ID}
+          - ${env:COGNITO_USER_POOL_ARN}
