@@ -7,14 +7,14 @@ provider:
   memorySize: 1024
   timeout: 29
   iam:
-    role: ${env:IAM_ROLE_ARN}  # Asegúrate de que IAM_ROLE_ARN esté correctamente configurado en tu entorno
+    role: ${env:IAM_ROLE_ARN}  
   environment:
     USERS_TABLE: ${sls:stage}-api-users
     TOKENS_TABLE: ${sls:stage}-t_tokens_acceso
     VALIDAR_TOKEN_LAMBDA_NAME: ${self:service}-${sls:stage}-ValidarTokenAcceso
-    SECRET_KEY: my_secret  # Puedes reemplazar esto con una variable de entorno si lo deseas
+    SECRET_KEY: my_secret  
     INDEX_EMAIL_NAME: BusquedaPorEmail
-    COGNITO_USER_POOL_ARN: ${env:COGNITO_USER_POOL_ARN}  # Reemplaza con tu ARN de Cognito User Pool
+    COGNITO_USER_POOL_ARN: ${env:COGNITO_USER_POOL_ARN}  
 
 functions:
   registerUser:
