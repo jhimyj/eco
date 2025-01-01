@@ -124,4 +124,4 @@ resources:
           Ref: ApiGatewayRestApi
         IdentitySource: method.request.header.Authorization
         ProviderARNs: 
-          - ${env:COGNITO_USER_POOL_ARN}
+          - ${self:provider.environment.COGNITO_USER_POOL_ARN}
