@@ -58,7 +58,7 @@ def lambda_handler(event, context):
 
        
         try:
-            file_name = f"profile_pictures/{user_id}.jpg"
+            file_name = f"profile_pictures/{user_id}.jpeg"
             s3_client.delete_object(Bucket=S3_BUCKET_NAME, Key=file_name)
             logger.info(f"Imagen {file_name} eliminada de S3.")
         except Exception as e:

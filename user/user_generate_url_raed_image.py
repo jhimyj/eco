@@ -6,7 +6,7 @@ from botocore.exceptions import ClientError
 
 s3_client = boto3.client('s3')
 BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
-EXPIRATION_TIME = 3600  # Tiempo de expiración en segundos (1 hora)
+EXPIRATION_TIME = 3600 
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -34,7 +34,7 @@ def lambda_handler(event, context):
             ).to_dict()
 
         
-        file_name = f"profile_pictures/{user_id}.jpg"
+        file_name = f"profile_pictures/{user_id}.jpeg"
 
         
         try:

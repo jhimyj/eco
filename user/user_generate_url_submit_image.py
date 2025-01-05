@@ -36,13 +36,13 @@ def lambda_handler(event, context):
             ).to_dict()
 
         
-        file_name = f"profile_pictures/{user_id}.jpg"
+        file_name = f"profile_pictures/{user_id}.jpeg"
 
        
         try:
             url = s3_client.generate_presigned_url(
                 'put_object',
-                Params={'Bucket': BUCKET_NAME, 'Key': file_name},
+                Params={'Bucket': BUCKET_NAME, 'Key': file_name,'ContentType': 'image/jpeg'},
                 ExpiresIn=EXPIRATION_TIME
             )
             logger.info(f"URL prefirmada generada para el usuario {user_id}: {url}")
