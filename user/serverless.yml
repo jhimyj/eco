@@ -10,18 +10,17 @@ provider:
     role: ${env:IAM_ROLE_ARN}  
   environment:
     USERS_TABLE: ${sls:stage}-api-users
-    TOKENS_TABLE: ${sls:stage}-t_tokens_acceso
-    VALIDAR_TOKEN_LAMBDA_NAME: ${self:service}-${sls:stage}-ValidarTokenAcceso
-    SECRET_KEY: my_secret  
-    INDEX_EMAIL_NAME: BusquedaPorEmail
-    COGNITO_USER_POOL_ARN: ${env:COGNITO_USER_POOL_ARN}  
+    COGNITO_USER_POOL_ARN: ${env:COGNITO_USER_POOL_ARN}
+    USER_POOL_ID: ${env:USER_POOL_ID}
+    S3_BUCKET_NAME : ${sls:stage}-api-users-eco
+      
 
 functions:
-  registerUser:
-    handler: register_user.lambda_handler
+  userAddData:
+    handler: user_add_data.lambda_handler
     events:
       - http:
-          path: user/register
+          path: user/me/auth/data
           method: post
           cors:
             origin: '*'  
@@ -34,30 +33,15 @@ functions:
               - X-Api-Key
               - X-Amz-Security-Token
               - X-Amz-User-Agent
-
-  loginUser:
-    handler: login_user.lambda_handler
-    events:
-      - http:
-          path: user/login
-          method: post
-          cors:
-            origin: '*'  
-            methods: 
-              - POST
-            headers:
-              - Content-Type
-              - Authorization
-              - X-Amz-Date
-              - X-Api-Key
-              - X-Amz-Security-Token
-              - X-Amz-User-Agent
-
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+          
   getUserMe:
-    handler: get_user_me.lambda_handler
+    handler: user_get_me.lambda_handler
     events:
       - http:
-          path: user/me
+          path: user/me/auth/data
           method: get
           cors:
             origin: '*'  
@@ -70,7 +54,115 @@ functions:
               - X-Api-Key
               - X-Amz-Security-Token
               - X-Amz-User-Agent
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
   
+  updateUserMe:
+    handler: user_update_data.lambda_handler
+    events:
+      - http:
+          path: user/me/auth/data
+          method: patch
+          cors:
+            origin: '*'  
+            methods: 
+              - PATCH
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+  
+  deleteUserMe:
+    handler: user_delete_me.lambda_handler
+    events:
+      - http:
+          path: user/me/auth/data
+          method: delete
+          cors:
+            origin: '*'  
+            methods: 
+              - DELETE
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  generate_url_submit_image:
+    handler: user_generate_url_submit_image.lambda_handler
+    events:
+      - http:
+          path: user/me/auth/image/generate/url
+          method: post
+          cors:
+            origin: '*'  
+            methods: 
+              - POST
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  generate_url_get_image:
+    handler: user_generate_url_read_image.lambda_handler
+    events:
+      - http:
+          path: user/me/auth/image/generate/url
+          method: get
+          cors:
+            origin: '*'  
+            methods: 
+              - GET
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
+  delete_image:
+    handler: user_delete_image_perfile.lambda_handler
+    events:
+      - http:
+          path: user/me/auth/image
+          method: delete
+          cors:
+            origin: '*'  
+            methods: 
+              - DELETE
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ApiGatewayAuthorizer
+
   prueba:
     handler: prueba.lambda_handler
     events:
@@ -94,6 +186,14 @@ functions:
 
 resources:
   Resources:
+    BucketApiUsers:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.S3_BUCKET_NAME}
+        AccessControl: Private
+        VersioningConfiguration:
+          Status: Enabled
+
     UsuariosDynamoDbTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -101,19 +201,10 @@ resources:
         AttributeDefinitions:
           - AttributeName: user_id
             AttributeType: S
-          - AttributeName: email
-            AttributeType: S
         KeySchema:
           - AttributeName: user_id
             KeyType: HASH  
-        BillingMode: PAY_PER_REQUEST  
-        GlobalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.INDEX_EMAIL_NAME}
-            KeySchema:
-              - AttributeName: email
-                KeyType: HASH
-            Projection:
-              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST 
 
     ApiGatewayAuthorizer:
       Type: AWS::ApiGateway::Authorizer
