@@ -32,10 +32,17 @@ def lambda_handler(event, context):
                 status_code=400,
                 message="Se requiere el ID del usuario para realizar la eliminación."
             ).to_dict()
-
+        
+        username = event.get("requestContext", {}).get("authorizer", {}).get("claims", {}).get("cognito:username")
+        if not username:
+            logger.warning("No se pudo obtener el ID de usuario.")
+            return Response(
+                status_code=400,
+                message="Se requiere el ID del usuario para realizar la eliminación."
+            ).to_dict()
         
         try:
-            cognito_client.admin_delete_user(UserPoolId=USER_POOL_ID, Username=user_id)
+            cognito_client.admin_delete_user(UserPoolId=USER_POOL_ID, Username=username)
             logger.info(f"Usuario {user_id} eliminado de Cognito.")
         except Exception as e:
             logger.error(f"Error al eliminar usuario {user_id} de Cognito: {e}")
