@@ -34,7 +34,7 @@ def lambda_handler(event, context):
             ).to_dict()
 
         
-        file_name = f"profile_pictures/{user_id}.jpeg"
+        file_name = f"profile_pictures/{user_id}"
 
         
         try:
